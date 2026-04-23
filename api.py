@@ -1,0 +1,69 @@
+import uuid
+from typing import Optional
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+app = FastAPI(title="Notes API", version="1.0.0")
+
+# In-memory storage
+_notes: dict[str, dict] = {}
+
+
+class NoteCreate(BaseModel):
+    title: str
+    content: str
+
+
+class NoteUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+
+
+class Note(BaseModel):
+    id: str
+    title: str
+    content: str
+
+
+@app.get("/notes", response_model=list[Note])
+def list_notes():
+    """ノートの一覧を返す"""
+    return list(_notes.values())
+
+
+@app.post("/notes", response_model=Note, status_code=201)
+def create_note(body: NoteCreate):
+    """新しいノートを作成する"""
+    note_id = str(uuid.uuid4())
+    note = {"id": note_id, "title": body.title, "content": body.content}
+    _notes[note_id] = note
+    return note
+
+
+@app.get("/notes/{note_id}", response_model=Note)
+def get_note(note_id: str):
+    """IDでノートを取得する"""
+    if note_id not in _notes:
+        raise HTTPException(status_code=404, detail="Note not found")
+    return _notes[note_id]
+
+
+@app.put("/notes/{note_id}", response_model=Note)
+def update_note(note_id: str, body: NoteUpdate):
+    """ノートのタイトルまたは内容を更新する"""
+    if note_id not in _notes:
+        raise HTTPException(status_code=404, detail="Note not found")
+    if body.title is not None:
+        _notes[note_id]["title"] = body.title
+    if body.content is not None:
+        _notes[note_id]["content"] = body.content
+    return _notes[note_id]
+
+
+@app.delete("/notes/{note_id}", status_code=204)
+def delete_note(note_id: str):
+    """ノートを削除する"""
+    if note_id not in _notes:
+        raise HTTPException(status_code=404, detail="Note not found")
+    del _notes[note_id]
