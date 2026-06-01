@@ -54,6 +54,17 @@ def list_notes():
     return list(_notes.values())
 
 
+@app.get("/notes/search", response_model=list[Note])
+def search_notes(q: str):
+    """タイトルまたは本文にクエリ文字列を含むノートを検索する（大文字小文字を区別しない）"""
+    needle = q.lower()
+    return [
+        note
+        for note in _notes.values()
+        if needle in note["title"].lower() or needle in note["content"].lower()
+    ]
+
+
 @app.post("/notes", response_model=Note, status_code=201)
 def create_note(body: NoteCreate):
     """新しいノートを作成する"""

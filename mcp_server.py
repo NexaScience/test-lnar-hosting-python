@@ -69,6 +69,17 @@ def create_note(title: str, content: str) -> str:
 
 
 @mcp.tool()
+def search_notes(q: str) -> str:
+    """タイトルまたは本文にクエリ文字列を含むノートを検索する。
+
+    Args:
+        q: 検索するキーワード（大文字小文字を区別しない）
+    """
+    notes = _get("/notes/search", params={"q": q})
+    return json.dumps(notes, ensure_ascii=False, indent=2)
+
+
+@mcp.tool()
 def get_note(note_id: str) -> str:
     """IDを指定してノートを取得する。
 
