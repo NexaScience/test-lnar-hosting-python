@@ -100,20 +100,6 @@ def create_note(body: NoteCreate):
     _notes[note_id] = note
     return note
 
-
-@app.delete("/notes")
-def delete_all_notes():
-    """すべてのノートを削除する。
-
-    0件のときは 204 No Content、それ以外は削除件数を返す。
-    """
-    deleted = len(_notes)
-    if deleted == 0:
-        return Response(status_code=204)
-    _notes.clear()
-    return {"deleted": deleted}
-
-
 @app.get("/notes/{note_id}", response_model=Note)
 def get_note(note_id: str):
     """IDでノートを取得する"""
