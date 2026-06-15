@@ -26,7 +26,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Notes API", version="1.0.0", lifespan=lifespan)
 
 # MCP Streamable HTTP エンドポイントを /mcp にマウント
-app.mount("/mcp", _mcp_app)
+app.mount("/mcp/", _mcp_app)
 
 # In-memory storage
 _notes: dict[str, dict] = {}
